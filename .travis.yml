@@ -1,0 +1,32 @@
+language: python
+sudo: false
+dist: xenial
+git:
+  depth: 9999999
+cache: pip
+before_cache:
+  - chown -R travis:travis $HOME/.cache/pip
+stages:
+  - test
+_install: &_install
+  - pip install --upgrade pip cython codecov
+_coverage: &_coverage
+  - coverage run --concurrency=multiprocessing -m unittest discover
+  - coverage combine
+matrix:
+  include:
+    - stage: test
+      python: 3.5
+      script: *_coverage
+      install: *_install
+    - python: 3.6
+      script: *_coverage
+      install: *_install
+    - python: 3.7
+      script: *_coverage
+      install: *_install
+      after_success:
+        - codecov
+  fast_finish: true
+notifications:
+  email: false
